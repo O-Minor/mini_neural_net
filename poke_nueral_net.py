@@ -88,3 +88,27 @@ for i in range(100000):
 
 # Find the Probability of the Next Character
 # <break for data cleaning>
+
+pik_input = "pik" # example input to get probabilities of next characters
+input_chars = pik_input
+#convert input characters to indices based on str to int (stoi) the char->index map
+# ensure context fits block size
+context = [stoi.get(char,0) for char in input_chars][-block_size:]
+# pad if shorter than block size
+context = [0] * (block_size - len(context)) + context
+# oliver note: need to do this for mini_markov
+
+# embedding the current context
+emb = C[torch.tensor([context])]
+
+# pass through the network layers
+h = torch.tanh(emb.view(1, -1) @ W1 + b1)
+logits = h @ W2 +b2
+
+# compute the probabilities
+# squeeze removes unnecessary dimensions
+# oliver note: for the curse of dimensionality
+probs = F.softmax(logits, dim=1).squeeze()
+
+# print out the porbabilities for each character
+next_char_probs = {itos[i]: probs[i].item() for i in range(len(probs))}

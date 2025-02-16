@@ -1,0 +1,24 @@
+2-16-25
+changing the block size on line 38 gives these errors
+block size 3 - no errors (original value)
+block size 4:
+line 74, in <module>
+    h = torch.tanh(emb.view(-1, 30) @ W1 + b1)
+                   ^^^^^^^^^^^^^^^^
+RuntimeError: shape '[-1, 30]' is invalid for input of size 1280
+block size 2:
+line 74, in <module>
+    h = torch.tanh(emb.view(-1, 30) @ W1 + b1)
+                   ^^^^^^^^^^^^^^^^
+RuntimeError: shape '[-1, 30]' is invalid for input of size 640
+first hypothesis: [-1, block_size * 10] will fix this
+
+did not work said can't multiply it with W1
+second hypothesis: anything that is 30 should be 10 * block_size
+so I made a new var called ten_blocks to put in both that 30 and the 30 in W1
+!! this worked for block_size = 2 and 4
+(4 has problems over fitting it gave 3 that already existed 2 were the same (jolteon))
+
+
+thing to make better: instead of 28 make the relevant list give its length
+as a variable and put that inplace of the 28

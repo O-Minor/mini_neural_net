@@ -49,7 +49,7 @@ def build_dataset(words):
 X, Y = build_dataset(words[:int(0.8*len(words))]) # use 80% for training data
 # oliver notes: unsure if this randomizes order but it would be good if it did 
 # otherwise you'd like train on nothing with Z names or something
-print(X.shape, Y.shape) # check shapes of training data
+# print(X.shape, Y.shape) # check shapes of training data
 # torch.Size([6155, 3]) torch.Size([6155])
 
 # INITIALIZE PARAMETERS with random values
@@ -112,3 +112,33 @@ probs = F.softmax(logits, dim=1).squeeze()
 
 # print out the porbabilities for each character
 next_char_probs = {itos[i]: probs[i].item() for i in range(len(probs))}
+# print(next_char_probs)
+
+# Step 5: Generating New Pokemon Names
+
+context = [0] * block_size
+print("'neural net, start generating pokemon names'\n")
+for q in range(20): # tutorial uses _ at iter variable but that's bad coding style to me
+    out = []
+    while True:
+        emb = C[torch.tensor([context])]
+        h = torch.tanh(emb.view(1, -1) @ W1 +b1)
+        logits = h @ W2 + b2
+        probs = F.softmax(logits, dim=1)
+        ix =  torch.multinomial(probs, num_samples=1, generator=g).item()
+        context = context[1:] + [ix]
+        out.append(ix)
+        if ix == 0:
+            print(''.join(itos[i] for i in out))
+            break
+
+# Things not in this model:
+# dynamic learning rate
+# overfitting prevention
+# expanding context length
+# large dataset
+# temperature adjustment
+
+# oliver's notes:
+# figure out how to not print out the . line stop character
+# see if you can print out each name as it is generated

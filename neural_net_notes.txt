@@ -1,3 +1,15 @@
+[ ]
+[ ] investigate if it makes sense to make an alt version that is by word
+[ ] general init function with ins: block_size and anything else needed
+[ ] general add data to model (adds 80% to train and 20% to test)
+[ ] general generate function with NO prompt
+[ ] general generate function with optional prompt and size conformer
+[ ] generalize input to any .txt
+[ ] generalize alphabet length
+
+[x] generalize block_size
+[x] stop printing .s
+[x] print one at a time
 2-16-25
 changing the block size on line 38 gives these errors
 block size 3 - no errors (original value)
@@ -22,3 +34,10 @@ so I made a new var called ten_blocks to put in both that 30 and the 30 in W1
 
 thing to make better: instead of 28 make the relevant list give its length
 as a variable and put that inplace of the 28
+
+2-15-25
+cleaning pokemon names to minimize number of characters
+# had to remove: .s on Mr. Mime and Mime Jr., 
+# gender symbols
+# on Nidorans, 2 in Proygon2, on Zygarde removed "50% Forme"
+# dashes in Ho-oh and Porygon-Z replaced with spaces

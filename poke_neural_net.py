@@ -12,25 +12,30 @@ import re
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
 
+# change this to read .txts and split on space or \n, see: mini_markov
 data = pd.read_csv('pokemon.csv')["Name"]
 words = data.to_list()
+
+# have a list of words called words
+# these two lines optionally lower all words
 for i in range(len(words)):
     words[i] = words[i].lower()
 # print(words[:8])
 # ['Bulbasaur', 'Ivysaur', 'Venusaur', 'VenusaurMega Venusaur', 'Charmander', 'Charmeleon', 'Charizard', 'CharizardMega Charizard X']
 
 # BUILD VOCABULARY
+# research or ask Alex if it would even make sense to make another version that is word by word
+# re: curse of dimentionality
 chars = sorted(list(set(' '.join(words))))
 #stoi = string to int (maps chars to unique ints)
 stoi = {s:i+1 for i,s in enumerate(chars)}
-stoi['.'] = 0 # dot represents end of word
+stoi['␄'] = 0 # character to represent end of what should be generated
+alphabet_len = len(stoi.items())
 # itos = int to string
 itos = {i:s for s,i in stoi.items()}
 # print(stoi)
 # {' ': 1, '%': 2, "'": 3, '-': 4, '.': 0, '0': 6, '2': 7, '5': 8, 'A': 9, 'B': 10, 'C': 
-# had to remove: .s on Mr. Mime and Mime Jr., 
-# gender symbols on Nidorans, 2 in Proygon2, on Zygarde removed "50% Forme"
-# dashes in Ho-oh and Porygon-Z replaced with spaces
+
 # print(itos)
 # {1: ' ', 2: '%', 3: "'", 4: '-', 0: '.', 6: '0', 7: '2', 8: '5', 9: 'A', 10: 'B', 11: '
 
@@ -137,10 +142,6 @@ for q in range(20): # tutorial uses _ at iter variable but that's bad coding sty
 # Things not in this model:
 # dynamic learning rate
 # overfitting prevention
-# expanding context length
+# expanding context length X
 # large dataset
 # temperature adjustment
-
-# oliver's notes:
-# figure out how to not print out the . line stop character
-# see if you can print out each name as it is generated

@@ -1,6 +1,7 @@
-# using this tutorial
+# based on this tutorial
 # https://pub.towardsai.net/build-the-smallest-llm-from-scratch-with-pytorch-and-generate-pok%C3%A9mon-names-fcff7dcc7e36
 # goal of tutorial: generate pokemon names
+# goal of my demo: generates words similar to the .txt(s) trained on
 
 # imports
 import pandas as pd
@@ -11,29 +12,45 @@ import re
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
 
-# change this to read .txts and split on space or \n, see: mini_markov
-data = pd.read_csv('pokemon.csv')["Name"]
-words = data.to_list()
+# STEP 1: PARSE DATA TO TRAIN ON
+words = []
+# open input .txt file
+def add_txt_to_words(in_txt, words):
+    in_text = open(in_txt).read()
+    # split text into words on spaces
+    temp_list = in_text.split()
+    words = words + temp_list
+    return words
 
+# change this to read .txts and split on space or \n, see: mini_markov
+def add_col_to_words(in_csv, col_name, words):
+    data = pd.read_csv(in_csv)[col_name]
+    temp_list = data.to_list()
+    words = words + temp_list
+    return words
+
+words = add_col_to_words('pokemon.csv', "Name", words)
+words = add_txt_to_words('ai_names_real_fic.txt', words)
 # have a list of words called words
-# these two lines optionally lower all words
-for i in range(len(words)):
-    words[i] = words[i].lower()
-# print(words[:8])
-# ['Bulbasaur', 'Ivysaur', 'Venusaur', 'VenusaurMega Venusaur', 'Charmander', 'Charmeleon', 'Charizard', 'CharizardMega Charizard X']
+
+print(words[:8])
+print(words[-10:])
 
 # BUILD VOCABULARY
 # research or ask Alex if it would even make sense to make another version that is word by word
 # re: curse of dimentionality
+
 chars = sorted(list(set(' '.join(words))))
 #stoi = string to int (maps chars to unique ints)
-stoi = {s:i+1 for i,s in enumerate(chars)}
+stoi = {s:i+1 
+        for i,s in enumerate(chars)}
 stop_char = '␄'
 stoi[stop_char] = 0 # character to represent end of what should be generated
 chrs_len = len(stoi.items())
 # itos = int to string
-itos = {i:s for s,i in stoi.items()}
-# print(stoi)
+itos = {i:s 
+        for s,i in stoi.items()}
+# print("strs to ints\n",stoi)
 # {' ': 1, '%': 2, "'": 3, '-': 4, '.': 0, '0': 6, '2': 7, '5': 8, 'A': 9, 'B': 10, 'C': 
 
 # print(itos)
@@ -99,7 +116,8 @@ pik_input = "pik" # example input to get probabilities of next characters
 input_chars = pik_input
 #convert input characters to indices based on str to int (stoi) the char->index map
 # ensure context fits block size
-context = [stoi.get(char,0) for char in input_chars][-block_size:]
+context = [stoi.get(char,0) 
+           for char in input_chars][-block_size:]
 # pad if shorter than block size
 context = [0] * (block_size - len(context)) + context
 # oliver note: need to do this for mini_markov
@@ -117,13 +135,14 @@ logits = h @ W2 +b2
 probs = F.softmax(logits, dim=1).squeeze()
 
 # print out the porbabilities for each character
-next_char_probs = {itos[i]: probs[i].item() for i in range(len(probs))}
+next_char_probs = {itos[i]: probs[i].item() 
+                   for i in range(len(probs))}
 # print(next_char_probs)
 
 # Step 5: Generating New Pokemon Names
 
 context = [0] * block_size
-print("'neural net, start generating pokemon names'\nblock size:",block_size,"\n")
+print("'neural net, start generating pokemony ai names'\nblock size:",block_size,"\n")
 for q in range(20): # tutorial uses _ as iter variable but that's bad coding style to me
     out = []
     while True:
@@ -134,7 +153,8 @@ for q in range(20): # tutorial uses _ as iter variable but that's bad coding sty
         ix =  torch.multinomial(probs, num_samples=1, generator=g).item()
         context = context[1:] + [ix]
         if ix == 0:
-            print(''.join(itos[i] for i in out))
+            print(''.join(itos[i] 
+                  for i in out))
             break
         else: # moved this to an else statement to get it to stop printing .s and elim blank names
             out.append(ix)

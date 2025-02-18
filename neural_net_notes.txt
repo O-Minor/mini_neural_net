@@ -1,11 +1,28 @@
+GOALS:
 [ ]
 [ ] investigate if it makes sense to make an alt version that is by word
 [ ] general init function with ins: block_size and anything else needed
 [ ] general add data to model (adds 80% to train and 20% to test)
 [ ] general generate function with NO prompt
 [ ] general generate function with optional prompt and size conformer
-[ ] generalize input to any .txt
 
+NEXT:
+what are the inputs and outputs of what sections
+input for make ngrams:
+- block_size
+output for make ngrams:
+
+
+input of adding to training data is 
+- the current words list
+- the training data to be added
+- metadata (col name for .csv and deliminator for .txt)
+output of adding training data:
+- updated words list
+
+DONE:
+[X] make txt import specify deliminator
+[X] generalize input to any .txt
 [X] generalize output stopper character
 [X] generalize alphabet length
 [x] generalize block_size

@@ -13,30 +13,49 @@ import torch.nn.functional as F
 import matplotlib.pyplot as plt
 
 # STEP 1: PARSE DATA TO TRAIN ON
+# the training set of words
 words = []
-# open input .txt file
-def add_txt_to_words(in_txt, words):
+
+# add_txt_to_words
+# input: a .txt file or really any data stream that open().read() can parse, current words list
+# output: words updated with each word (split on spaces) in the txt file as a word
+def add_txt_to_words(in_txt, words, delim=' '):
     in_text = open(in_txt).read()
+    # print(in_text)
+    in_text=in_text.replace('\n',' ')
+    # print(in_text) # for testing if /n repl works ✔️
     # split text into words on spaces
-    temp_list = in_text.split()
+    temp_list = in_text.split(delim)
     words = words + temp_list
     return words
 
-# change this to read .txts and split on space or \n, see: mini_markov
+# add_col_to_words
+# input: a csv file and the specified column name to import, current words list
+# output: words updated with each row of the column as a word
 def add_col_to_words(in_csv, col_name, words):
     data = pd.read_csv(in_csv)[col_name]
     temp_list = data.to_list()
     words = words + temp_list
     return words
 
-words = add_col_to_words('pokemon.csv', "Name", words)
-words = add_txt_to_words('ai_names_real_fic.txt', words)
-# have a list of words called words
+# add_csv_to words
+# input: a csv file with only one column, likely of text, current words list
+# output: words updated with each entry of the csv as a word
+def add_csv_to_words(in_csv, words):
+    data = pd.read_csv(in_csv)[0]
+    temp_list = data.to_list()
+    words = words + temp_list
+    return words
 
-print(words[:8])
-print(words[-10:])
+words = add_col_to_words('pokemon.csv', "Name", words)
+print(words[-8:])
+words = add_txt_to_words('ai_names_real_fic.csv', words, ',')
+print(words[-8:])
+words = add_txt_to_words('blorbo2.txt', words)
+print(words[-8:])
 
 # BUILD VOCABULARY
+# by this point have a list of words called words
 # research or ask Alex if it would even make sense to make another version that is word by word
 # re: curse of dimentionality
 
@@ -57,9 +76,10 @@ itos = {i:s
 # {1: ' ', 2: '%', 3: "'", 4: '-', 0: '.', 6: '0', 7: '2', 8: '5', 9: 'A', 10: 'B', 11: '
 
 # MAKE N GRAMS
-block_size = 4 # context length (good for japanese because hiriganas are 2-3 latin chars)
+block_size = 2 # context length (good for japanese because hiriganas are 2-3 latin chars)
 ten_blocks = block_size * 10
-def build_dataset(words):
+def build_dataset(words, block_size):
+    ten_blocks = block_size * 10
     X, Y = [], []
     for w in words:
         context = [0] * block_size # star with a blank context
@@ -139,7 +159,7 @@ next_char_probs = {itos[i]: probs[i].item()
                    for i in range(len(probs))}
 # print(next_char_probs)
 
-# Step 5: Generating New Pokemon Names
+# Step 5: Generating New Names
 
 context = [0] * block_size
 print("'neural net, start generating pokemony ai names'\nblock size:",block_size,"\n")

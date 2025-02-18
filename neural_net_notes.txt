@@ -5,8 +5,9 @@
 [ ] general generate function with NO prompt
 [ ] general generate function with optional prompt and size conformer
 [ ] generalize input to any .txt
-[ ] generalize alphabet length
 
+[X] generalize output stopper character
+[X] generalize alphabet length
 [x] generalize block_size
 [x] stop printing .s
 [x] print one at a time

@@ -29,8 +29,9 @@ for i in range(len(words)):
 chars = sorted(list(set(' '.join(words))))
 #stoi = string to int (maps chars to unique ints)
 stoi = {s:i+1 for i,s in enumerate(chars)}
-stoi['␄'] = 0 # character to represent end of what should be generated
-alphabet_len = len(stoi.items())
+stop_char = '␄'
+stoi[stop_char] = 0 # character to represent end of what should be generated
+chrs_len = len(stoi.items())
 # itos = int to string
 itos = {i:s for s,i in stoi.items()}
 # print(stoi)
@@ -46,7 +47,7 @@ def build_dataset(words):
     X, Y = [], []
     for w in words:
         context = [0] * block_size # star with a blank context
-        for ch in w + '.':
+        for ch in w + stop_char:
             ix = stoi[ch]
             X.append(context)
             Y.append(ix)
@@ -59,14 +60,14 @@ X, Y = build_dataset(words[:int(0.8*len(words))]) # use 80% for training data
 # torch.Size([6155, 3]) torch.Size([6155])
 
 # INITIALIZE PARAMETERS with random values
-# tutorial uses 27 as number of characters, I am using 28 because é is included
+# generalized the tutorial's 27 to chrs_len which is length of stoi
 g  = torch.Generator()
-C  = torch.randn((28, 10), generator=g) # embedding layer
+C  = torch.randn((chrs_len, 10), generator=g) # embedding layer
 # W: weight, b: bias
 W1 = torch.randn((ten_blocks, 200), generator=g) # first linear layer
 b1 = torch.randn(200, generator=g)
-W2 = torch.randn((200, 28), generator=g) # second linear layer
-b2 = torch.randn(28, generator=g)
+W2 = torch.randn((200, chrs_len), generator=g) # second linear layer
+b2 = torch.randn(chrs_len, generator=g)
 
 parameters = [C, W1, b1, W2, b2]
 for p in parameters:

@@ -57,7 +57,7 @@ def add_csv_to_words(in_csv, words):
 # BUILD VOCABULARY
 # by this point have a list of words called words
 
-def make_ai_and_generate(words, in_block_size, in_context="", outputs=5):
+def train_ai(words, block_size):
     chars = sorted(list(set(' '.join(words))))
     #stoi = string to int (maps chars to unique ints)
     stoi = {s:i+1 
@@ -66,18 +66,16 @@ def make_ai_and_generate(words, in_block_size, in_context="", outputs=5):
     stoi[stop_char] = 0 # character to represent end of what should be generated
     chrs_len = len(stoi.items())
     # itos = int to string
-    itos = {i:s 
-            for s,i in stoi.items()}
+    itos = {i:s for s,i in stoi.items()}
     # print("strs to ints\n",stoi)
     # {' ': 1, '%': 2, ...
     # print(itos)
     # {1: ' ', 2: '%', ...
 
     # MAKE N GRAMS
-    block_size = in_block_size # context length (good for japanese because hiriganas are 2-3 latin chars)
+    # block_size is context length
     ten_blocks = block_size * 10
     def build_dataset(words, block_size):
-        ten_blocks = block_size * 10
         X, Y = [], []
         for w in words:
             context = [0] * block_size # star with a blank context
@@ -87,9 +85,9 @@ def make_ai_and_generate(words, in_block_size, in_context="", outputs=5):
                 Y.append(ix)
                 context = context[1:] + [ix] # shift and append new character
         return torch.tensor(X), torch.tensor(Y)
-    X, Y = build_dataset(words[:int(0.8*len(words))]) # use 80% for training data
-    # oliver notes: unsure if this randomizes order but it would be good if it did 
-    # otherwise you'd like train on nothing with Z names or something
+    
+    X, Y = build_dataset(words[:int(0.8*len(words))]) 
+                                    # 0.8 means use 80% for training data
     # print(X.shape, Y.shape) # check shapes of training data
     # torch.Size([6155, 3]) torch.Size([6155])
 
@@ -107,6 +105,7 @@ def make_ai_and_generate(words, in_block_size, in_context="", outputs=5):
     for p in parameters:
         p.requires_grad = True # enables backpropogation, to adjust values
 
+    # TRAINING SECTION
     for i in range(100000):
         # get a mini-batch of 32 random samples from training data
         ix = torch.randint(0, X.shape[0], (32,))
@@ -126,28 +125,26 @@ def make_ai_and_generate(words, in_block_size, in_context="", outputs=5):
         loss.backward()
         for p in parameters:
             p.data -= 0.1 * p.grad
+    return [C, W1, b1, W2, b2, stoi, itos, block_size]
 
-    # Find the Probability of the Next Character
+imported = train_ai(words, in_block_size=3)
 
-    input_chars = in_context # from user's input or default blank
-    #convert input characters to indices based on str to int (stoi) the char->index map
-    # ensure context fits block size
-    context = [stoi.get(char,0) 
-            for char in input_chars][-block_size:]
-    # pad if shorter than block size
-    context = [0] * (block_size - len(context)) + context
-
-    '''
-    # can put this code after the 'probs =' line to 
-    # print out the probabilities for each character
-    next_char_probs = {itos[i]: probs[i].item() 
-                    for i in range(len(probs))}
-    print(next_char_probs)
-    '''
-
-    # Step 5: Generating New Names
+def do_generating(vars_from_train, in_context = "", outputs=5):
+    # mass import from prev function
+    C, W1, b1, W2, b2, stoi, itos, block_size = vars_from_train
+    # set up context from user input prompt
     if in_context == "":
         context = [0] * block_size
+    else:
+        input_chars = in_context # from user's input or default blank
+        #convert input characters to indices based on str to int (stoi) the char->index map
+        # ensure context fits block size
+        context = [stoi.get(char,0)
+                for char in input_chars][-block_size:]
+        # pad if shorter than block size
+        context = [0] * (block_size - len(context)) + context
+
+    # Step 5: Generating New Names
     print("'neural net, start generating new text'\nblock size:",block_size,"\n")
     for q in range(outputs): # outputs is user inputed var for how many times to generate
         out = []

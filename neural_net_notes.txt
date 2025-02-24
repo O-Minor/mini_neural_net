@@ -12,6 +12,17 @@ input for make ngrams:
 - block_size
 output for make ngrams:
 
+needed for starting to generate:
+block_size
+outputs
+in_context
+context
+W1
+b1
+h
+W2
+b2
+
 
 input of adding to training data is 
 - the current words list

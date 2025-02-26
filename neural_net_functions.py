@@ -14,16 +14,16 @@ import matplotlib.pyplot as plt
 
 # STEP 1: PARSE DATA TO LEARN FROM
 # outside of functions: have a list of words that is the growing dataset
-words = []
 
 # add_txt_to_words
 # input: a .txt file or really any data stream that open().read() can parse, current words list
 # output: words updated with each word (split on spaces) in the txt file as a word
 def add_txt_to_words(in_txt, words=[]):
+    print("in txt to words")
     in_text = open(in_txt).read()
     # print(in_text)
     in_text=in_text.replace('\n',' ')
-    print(type(in_text), in_text[:8]) # for testing if /n repl works ✔️
+    #print(type(in_text), in_text[:8]) # for testing if /n repl works ✔️
     # split text into words on spaces
     temp_list = in_text.split()
     words = words + temp_list
@@ -46,18 +46,12 @@ def add_csv_to_words(in_csv, words):
     temp_list = data.to_list()
     words = words + temp_list
     return words
-
-words = add_col_to_words('pokemon.csv', "Name", words)
-# print(words[-8:])
-# words = add_txt_to_words('ai_names_real_fic.csv', words, ',')
-# print(words[-8:])
-# words = add_txt_to_words('blorbo2.txt', words)
-# print(words[-8:])
+# add to vocab before next step 
 
 # BUILD VOCABULARY
 # by this point have a list of words called words
-
 def train_ai(words = [], block_size=3):
+    print("start training ai")
     if len(words) < 1:
         raise Exception("words list is empty!")
     chars = sorted(list(set(' '.join(words))))
@@ -90,6 +84,7 @@ def train_ai(words = [], block_size=3):
 
     X, Y = build_dataset(words[:int(0.8*len(words))], block_size) 
                                     # 0.8 means use 80% for training data
+    print("shapes of x and y")
     print(X.shape, Y.shape) # check shapes of training data
     # torch.Size([6155, 3]) torch.Size([6155])
 
@@ -110,7 +105,7 @@ def train_ai(words = [], block_size=3):
     # TRAINING SECTION
     for i in range(100000):
         # get a mini-batch of 32 random samples from training data
-        print("right bef randint torch\n")
+        # print("right bef randint torch\n")
         ix = torch.randint(0, X.shape[0], (32,))
         emb = C[X[ix]]
         # pass embedding through hidden layer W1 "with tanh activate"
@@ -128,13 +123,12 @@ def train_ai(words = [], block_size=3):
         loss.backward()
         for p in parameters:
             p.data -= 0.1 * p.grad
-    return [C, W1, b1, W2, b2, stoi, itos, block_size]
-
-imported = train_ai(words, 3)
+    return [C, W1, b1, W2, b2, stoi, itos, block_size, g]
+# imported = train_ai(words, 3)
 
 def do_generating(vars_from_train, in_context = "", outputs=5):
     # mass import from prev function
-    C, W1, b1, W2, b2, stoi, itos, block_size = vars_from_train
+    C, W1, b1, W2, b2, stoi, itos, block_size, g = vars_from_train
     # set up context from user input prompt
     if in_context == "":
         context = [0] * block_size
@@ -172,9 +166,15 @@ def do_generating(vars_from_train, in_context = "", outputs=5):
 
 words = []
 print("starting adding to words dataset\n")
+words = add_col_to_words('pokemon.csv', "Name", words)
+# print(words[-8:])
+# words = add_txt_to_words('ai_names_real_fic.csv', words, ',')
+# print(words[-8:])
+# words = add_txt_to_words('blorbo2.txt', words)
+# print(words[-8:])
 words = add_txt_to_words('frank_text_clean.txt', words)
 words = add_txt_to_words('blorbo2.txt', words)
-words = add_col_to_words('pokemon.csv', "Name", words)
-
-print("starting big function\n")
-make_ai_and_generate(words, 3, "", 10)
+# words = add_col_to_words('pokemon.csv', "Name", words)
+# print("starting big function\n")
+imported = train_ai(words, 3)
+do_generating(imported, "", 10)

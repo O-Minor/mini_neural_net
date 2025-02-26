@@ -55,7 +55,7 @@ def build_dataset(words):
 X, Y = build_dataset(words[:int(0.8*len(words))]) # use 80% for training data
 # oliver notes: unsure if this randomizes order but it would be good if it did 
 # otherwise you'd like train on nothing with Z names or something
-# print(X.shape, Y.shape) # check shapes of training data
+print(X.shape, Y.shape) # check shapes of training data
 # torch.Size([6155, 3]) torch.Size([6155])
 
 # INITIALIZE PARAMETERS with random values

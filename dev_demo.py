@@ -10,3 +10,6 @@ print(words[-8:])
 
 words = nn.add_txt_to_words('blorbo2.txt', words)
 print(words[-8:])
+
+nn.train_ai(words, blocksize)
+# from user input generate(user vars)

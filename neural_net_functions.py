@@ -47,7 +47,7 @@ def add_csv_to_words(in_csv, words):
     words = words + temp_list
     return words
 
-# words = add_col_to_words('pokemon.csv', "Name", words)
+words = add_col_to_words('pokemon.csv', "Name", words)
 # print(words[-8:])
 # words = add_txt_to_words('ai_names_real_fic.csv', words, ',')
 # print(words[-8:])
@@ -57,7 +57,9 @@ def add_csv_to_words(in_csv, words):
 # BUILD VOCABULARY
 # by this point have a list of words called words
 
-def train_ai(words, block_size=3):
+def train_ai(words = [], block_size=3):
+    if len(words) < 1:
+        raise Exception("words list is empty!")
     chars = sorted(list(set(' '.join(words))))
     #stoi = string to int (maps chars to unique ints)
     stoi = {s:i+1 
@@ -88,7 +90,7 @@ def train_ai(words, block_size=3):
 
     X, Y = build_dataset(words[:int(0.8*len(words))], block_size) 
                                     # 0.8 means use 80% for training data
-    # print(X.shape, Y.shape) # check shapes of training data
+    print(X.shape, Y.shape) # check shapes of training data
     # torch.Size([6155, 3]) torch.Size([6155])
 
     # INITIALIZE PARAMETERS with random values

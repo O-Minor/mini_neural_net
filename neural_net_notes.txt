@@ -70,3 +70,6 @@ cleaning pokemon names to minimize number of characters
 # gender symbols
 # on Nidorans, 2 in Proygon2, on Zygarde removed "50% Forme"
 # dashes in Ho-oh and Porygon-Z replaced with spaces
+
+run the thing to refactor often
+can run functions in debug console

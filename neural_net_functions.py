@@ -19,13 +19,13 @@ words = []
 # add_txt_to_words
 # input: a .txt file or really any data stream that open().read() can parse, current words list
 # output: words updated with each word (split on spaces) in the txt file as a word
-def add_txt_to_words(in_txt, delim=" ", words=[]):
+def add_txt_to_words(in_txt, words=[]):
     in_text = open(in_txt).read()
     # print(in_text)
     in_text=in_text.replace('\n',' ')
     print(type(in_text), in_text[:8]) # for testing if /n repl works ✔️
     # split text into words on spaces
-    temp_list = in_text.split(delim)
+    temp_list = in_text.split()
     words = words + temp_list
     return words
 
@@ -39,7 +39,7 @@ def add_col_to_words(in_csv, col_name, words=[]):
     return words
 
 # add_csv_to words
-# input: a csv file with only one column, likely of text, current words list
+# input: a csv file with only one column or only 1st col relevant, likely of text, current words list
 # output: words updated with each entry of the csv as a word
 def add_csv_to_words(in_csv, words):
     data = pd.read_csv(in_csv)[0]
@@ -57,7 +57,7 @@ def add_csv_to_words(in_csv, words):
 # BUILD VOCABULARY
 # by this point have a list of words called words
 
-def train_ai(words, block_size):
+def train_ai(words, block_size=3):
     chars = sorted(list(set(' '.join(words))))
     #stoi = string to int (maps chars to unique ints)
     stoi = {s:i+1 
@@ -85,8 +85,8 @@ def train_ai(words, block_size):
                 Y.append(ix)
                 context = context[1:] + [ix] # shift and append new character
         return torch.tensor(X), torch.tensor(Y)
-    
-    X, Y = build_dataset(words[:int(0.8*len(words))]) 
+
+    X, Y = build_dataset(words[:int(0.8*len(words))], block_size) 
                                     # 0.8 means use 80% for training data
     # print(X.shape, Y.shape) # check shapes of training data
     # torch.Size([6155, 3]) torch.Size([6155])
@@ -108,6 +108,7 @@ def train_ai(words, block_size):
     # TRAINING SECTION
     for i in range(100000):
         # get a mini-batch of 32 random samples from training data
+        print("right bef randint torch\n")
         ix = torch.randint(0, X.shape[0], (32,))
         emb = C[X[ix]]
         # pass embedding through hidden layer W1 "with tanh activate"
@@ -127,7 +128,7 @@ def train_ai(words, block_size):
             p.data -= 0.1 * p.grad
     return [C, W1, b1, W2, b2, stoi, itos, block_size]
 
-imported = train_ai(words, in_block_size=3)
+imported = train_ai(words, 3)
 
 def do_generating(vars_from_train, in_context = "", outputs=5):
     # mass import from prev function

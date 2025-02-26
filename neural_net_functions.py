@@ -163,7 +163,7 @@ def do_generating(vars_from_train, in_context = "", outputs=5):
                 out.append(ix)
 
 # END FUNCTIONS
-
+'''
 words = []
 print("starting adding to words dataset\n")
 words = add_col_to_words('pokemon.csv', "Name", words)
@@ -178,3 +178,4 @@ words = add_txt_to_words('blorbo2.txt', words)
 # print("starting big function\n")
 imported = train_ai(words, 3)
 do_generating(imported, "", 10)
+'''
